@@ -1,0 +1,37 @@
+[package]
+name = "mandelbrot-explorer-rs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bytemuck = { version = "1.4", features = ["derive"] }
+console_log = "0.2.0"
+log = "0.4.17"
+nanorand = { version = "0.7", default-features = false, features = ["wyrand"] }
+wgpu = { version = "0.14.2", features = [] }
+winit = "0.27.5"
+
+[target.'cfg(target_arch = "x86_64")'.dependencies]
+async-executor = "1.5.0"
+env_logger = "0.10.0"
+pollster = "0.2.5"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+console_error_panic_hook = "0.1.7"
+glam = "0.22.0"
+js-sys = "0.3.60"
+noise = { version = "0.7", default-features = false }
+wasm-bindgen = "0.2.83"
+wasm-bindgen-futures = "0.4.33"
+web-sys = { version = "0.3.60", features = ["Location"] }
+wgpu-types = "0.14.1"
+# # console_error_panic_hook = "0.1.6"
+# # console_log = "0.2.0"
+# # wgpu = { version = "0.14", features = ["webgl"]}
+# # wasm-bindgen = "0.2"
+# # wasm-bindgen-futures = "0.4.30"
+# web-sys = { version = "0.3", features = [
+#     "Document",
+#     "Window",
+#     "Element",
+# ]}
