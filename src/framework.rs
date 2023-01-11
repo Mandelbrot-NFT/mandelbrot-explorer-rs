@@ -28,7 +28,7 @@ pub enum ShaderStage {
     Compute,
 }
 
-pub trait Example: 'static + Sized {
+pub trait App: 'static + Sized {
     fn optional_features() -> wgpu::Features {
         wgpu::Features::empty()
     }
@@ -57,7 +57,7 @@ pub trait Example: 'static + Sized {
         device: &wgpu::Device,
         queue: &wgpu::Queue,
     );
-    fn update(&mut self, event: WindowEvent);
+    fn update(&mut self, event: WindowEvent) -> bool;
     fn render(
         &mut self,
         view: &wgpu::TextureView,
@@ -86,7 +86,7 @@ struct OffscreenCanvasSetup {
     bitmap_renderer: ImageBitmapRenderingContext,
 }
 
-async fn setup<E: Example>(title: &str) -> Setup {
+async fn setup<E: App>(title: &str) -> Setup {
     #[cfg(not(target_arch = "wasm32"))]
     {
         env_logger::init();
@@ -179,10 +179,6 @@ async fn setup<E: Example>(title: &str) -> Setup {
         (size, surface)
     };
 
-    for a in instance.enumerate_adapters(wgpu::Backends::all()) {
-        println!("{}", a.get_info().name);
-    }
-
     let adapter =
         wgpu::util::initialize_adapter_from_env_or_default(&instance, backend, Some(&surface))
             .await
@@ -248,7 +244,7 @@ async fn setup<E: Example>(title: &str) -> Setup {
     }
 }
 
-fn start<E: Example>(
+fn start<E: App>(
     #[cfg(not(target_arch = "wasm32"))] Setup {
         window,
         event_loop,
@@ -282,7 +278,7 @@ fn start<E: Example>(
     };
     surface.configure(&device, &config);
 
-    log::info!("Initializing the example...");
+    log::info!("Initializing the example... {} {}", size.width, size.height);
     let mut example = E::init(&config, &adapter, &device, &queue);
 
     #[cfg(not(target_arch = "wasm32"))]
@@ -303,7 +299,7 @@ fn start<E: Example>(
                 #[cfg(not(target_arch = "wasm32"))]
                 spawner.run_until_stalled();
 
-                window.request_redraw();
+                // window.request_redraw();
             }
             event::Event::WindowEvent {
                 event:
@@ -319,6 +315,7 @@ fn start<E: Example>(
                 config.height = size.height.max(1);
                 example.resize(&config, &device, &queue);
                 surface.configure(&device, &config);
+                window.request_redraw();
             }
             event::Event::WindowEvent { event, .. } => match event {
                 WindowEvent::KeyboardInput {
@@ -346,7 +343,9 @@ fn start<E: Example>(
                     println!("{:#?}", instance.generate_report());
                 }
                 _ => {
-                    example.update(event);
+                    if example.update(event) {
+                        window.request_redraw();
+                    }
                 }
             },
             event::Event::RedrawRequested(_) => {
@@ -441,13 +440,13 @@ impl Spawner {
 }
 
 #[cfg(not(target_arch = "wasm32"))]
-pub fn run<E: Example>(title: &str) {
+pub fn run<E: App>(title: &str) {
     let setup = pollster::block_on(setup::<E>(title));
     start::<E>(setup);
 }
 
 #[cfg(target_arch = "wasm32")]
-pub fn run<E: Example>(title: &str) {
+pub fn run<E: App>(title: &str) {
     use wasm_bindgen::{prelude::*, JsCast};
 
     let title = title.to_owned();
@@ -508,7 +507,7 @@ pub struct FrameworkRefTest {
 
 #[cfg(test)]
 #[allow(dead_code)]
-pub fn test<E: Example>(mut params: FrameworkRefTest) {
+pub fn test<E: App>(mut params: FrameworkRefTest) {
     use std::{mem, num::NonZeroU32};
 
     assert_eq!(params.width % 64, 0, "width needs to be aligned 64");
