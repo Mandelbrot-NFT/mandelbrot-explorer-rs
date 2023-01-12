@@ -43,11 +43,28 @@ fn is_within_the_cardioid_or_a_p2bulb(x: f32, y: f32) -> bool {
     return (q * (q + (x - 0.25)) <= 0.25 * pow(y, 2.0)) || (pow((x + 1.0), 2.0) + pow(y, 2.0) <= 0.0625);
 }
 
-fn mandelbrot(c: vec2<f32>, max_iter: i32) -> i32 {
+fn mandelbrot(x: f32, y: f32, max_iter: i32) -> i32 {
+    let c = vec2<f32>(x, y);
     var z = vec2<f32>(0.0, 0.0);
     var n:i32 = 0;
     while (complex_abs(z) <= 2.0) && (n < max_iter) {
         z = complex_mult(z, z) + c;
+        n += 1;
+    }
+    return n;
+}
+
+fn mandelbrot_optimized(x0: f32, y0: f32, max_iter: i32) -> i32 {
+    var x = 0.0;
+    var y = 0.0;
+    var x2 = 0.0;
+    var y2 = 0.0;
+    var n:i32 = 0;
+    while (x2 + y2 <= 4.0) && n < max_iter {
+        y = 2.0 * x * y + y0;
+        x = x2 - y2 + x0;
+        x2 = pow(x, 2.0);
+        y2 = pow(y, 2.0);
         n += 1;
     }
     return n;
@@ -76,9 +93,8 @@ fn main(
     if is_within_the_cardioid_or_a_p2bulb(x, y) {
         val = 0.0;
     } else {
-        let p = vec2<f32>(x, y);
-        let i = mandelbrot(p,params.max_iterations);
-        let i_norm = f32(i)/ f32(params.max_iterations);
+        // let i = mandelbrot(x, y, params.max_iterations);
+        let i = mandelbrot_optimized(x, y, params.max_iterations);
         let i_norm = f32(i) / f32(params.max_iterations);
         
         val = i_norm; 
