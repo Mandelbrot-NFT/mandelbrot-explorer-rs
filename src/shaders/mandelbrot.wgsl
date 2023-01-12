@@ -39,7 +39,7 @@ fn hsv2rgb(c: vec3<f32>) -> vec4<f32>
 }
 
 fn is_within_the_cardioid_or_a_p2bulb(x: f32, y: f32) -> bool {
-    let q = pow(x - 0.24, 2.0) + pow(y, 2.0);
+    let q = pow(x - 0.25, 2.0) + pow(y, 2.0);
     return (q * (q + (x - 0.25)) <= 0.25 * pow(y, 2.0)) || (pow((x + 1.0), 2.0) + pow(y, 2.0) <= 0.0625);
 }
 
