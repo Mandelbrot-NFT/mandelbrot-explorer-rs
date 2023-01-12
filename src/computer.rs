@@ -27,10 +27,11 @@ impl SampleLocation {
     }
 
     pub fn to_mandlebrot_params(&self, max_iterations: i32) -> MandelbrotParams {
-        let x_min = self.position.x - (self.zoom * self.width / 1024.0);
-        let x_max = self.position.x + (self.zoom * self.width / 1024.0);
-        let y_min = self.position.y - (self.zoom * self.height / 1024.0);
-        let y_max = self.position.y + (self.zoom * self.height / 1024.0);
+        let scale = self.width.min(self.height) / 2.0;
+        let x_min = self.position.x - (self.zoom * self.width / scale);
+        let x_max = self.position.x + (self.zoom * self.width / scale);
+        let y_min = self.position.y - (self.zoom * self.height / scale);
+        let y_max = self.position.y + (self.zoom * self.height / scale);
         MandelbrotParams {
             x_min,
             x_max,
@@ -61,8 +62,9 @@ impl SampleLocation {
     }
 
     pub fn move_(&mut self, delta_x: f32, delta_y: f32) {
-        self.position.x -= self.zoom * delta_x / 512.0;
-        self.position.y -= self.zoom * delta_y / 512.0;
+        let scale = self.width.min(self.height) / 4.0;
+        self.position.x -= self.zoom * delta_x / scale;
+        self.position.y -= self.zoom * delta_y / scale;
     }
 
     pub fn resize(&mut self, width: f32, height: f32) {
