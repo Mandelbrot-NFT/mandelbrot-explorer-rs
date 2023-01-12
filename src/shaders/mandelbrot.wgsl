@@ -17,7 +17,7 @@ fn complex_mult(a: vec2<f32>, b: vec2<f32>) -> vec2<f32> {
 }
 
 fn complex_abs(a: vec2<f32>) -> f32 {
-  return sqrt(pow(a.x,2.0) + pow(a.y,2.0));
+    return sqrt(pow(a.x, 2.0) + pow(a.y, 2.0));
 }
 
 fn lerp(input: f32, in_min: f32, in_max: f32, out_min: f32, out_max: f32) -> f32 {
@@ -46,7 +46,7 @@ fn is_within_the_cardioid_or_a_p2bulb(x: f32, y: f32) -> bool {
 fn mandelbrot(c: vec2<f32>, max_iter: i32) -> i32 {
     var z = vec2<f32>(0.0, 0.0);
     var n:i32 = 0;
-    while ((complex_abs(z) <= 2.0) && (n < max_iter)) {
+    while (complex_abs(z) <= 2.0) && (n < max_iter) {
         z = complex_mult(z, z) + c;
         n += 1;
     }
@@ -59,11 +59,11 @@ fn mandelbrot(c: vec2<f32>, max_iter: i32) -> i32 {
 
 @compute @workgroup_size(16, 16)
 fn main(
-  @builtin(global_invocation_id) global_id : vec3<u32>,
+    @builtin(global_invocation_id) global_id : vec3<u32>,
 ) {
     let dimensions = vec2<i32>(textureDimensions(output_texture).xy);
     let coords = vec2<i32>(global_id.xy);
-    if(coords.x >= dimensions.x || coords.y >= dimensions.y) {
+    if (coords.x >= dimensions.x) || (coords.y >= dimensions.y) {
         return;
     }
 
@@ -79,6 +79,7 @@ fn main(
         let p = vec2<f32>(x, y);
         let i = mandelbrot(p,params.max_iterations);
         let i_norm = f32(i)/ f32(params.max_iterations);
+        let i_norm = f32(i) / f32(params.max_iterations);
         
         val = i_norm; 
         val = sqrt(val);
