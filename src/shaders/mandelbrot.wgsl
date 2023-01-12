@@ -38,6 +38,11 @@ fn hsv2rgb(c: vec3<f32>) -> vec4<f32>
     return vec4<f32>(col.r, col.g, col.b, 1.0);
 }
 
+fn is_within_the_cardioid_or_a_p2bulb(x: f32, y: f32) -> bool {
+    let q = pow(x - 0.24, 2.0) + pow(y, 2.0);
+    return (q * (q + (x - 0.25)) <= 0.25 * pow(y, 2.0)) || (pow((x + 1.0), 2.0) + pow(y, 2.0) <= 0.0625);
+}
+
 fn mandelbrot(c: vec2<f32>, max_iter: i32) -> i32 {
     var z = vec2<f32>(0.0, 0.0);
     var n:i32 = 0;
@@ -66,18 +71,22 @@ fn main(
     let ynorm = f32(coords.y) / f32(dimensions.y);
     let x = lerp(xnorm, 0.0, 1.0, params.x_min, params.x_max);
     let y = lerp(ynorm, 0.0, 1.0, params.y_min, params.y_max);
-    let p = vec2<f32>(x, y);
-    let i = mandelbrot(p,params.max_iterations);
-    
 
-    let i_norm = f32(i)/ f32(params.max_iterations);
-    
-    var val = i_norm; 
-    val = sqrt(val);
-    var bright = 1.0;
-    if (i >= params.max_iterations) {
-        bright = 0.0;
+    var val: f32 = 1.0;
+    if is_within_the_cardioid_or_a_p2bulb(x, y) {
         val = 0.0;
+    } else {
+        let p = vec2<f32>(x, y);
+        let i = mandelbrot(p,params.max_iterations);
+        let i_norm = f32(i)/ f32(params.max_iterations);
+        
+        val = i_norm; 
+        val = sqrt(val);
+        var bright = 1.0;
+        if (i >= params.max_iterations) {
+            bright = 0.0;
+            val = 0.0;
+        }
     }
 
     // let rgb = hsv2rgb(vec3<f32>(val,1.0,bright));
