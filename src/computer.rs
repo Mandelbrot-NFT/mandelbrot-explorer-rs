@@ -60,6 +60,11 @@ impl SampleLocation {
         self.zoom *= 2.0f32.powf(rate);
     }
 
+    pub fn move_(&mut self, delta_x: f32, delta_y: f32) {
+        self.position.x -= self.zoom * delta_x / 512.0;
+        self.position.y -= self.zoom * delta_y / 512.0;
+    }
+
     pub fn resize(&mut self, width: f32, height: f32) {
         self.width = width;
         self.height = height;

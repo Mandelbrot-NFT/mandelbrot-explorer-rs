@@ -94,7 +94,9 @@ async fn setup<E: App>(title: &str) -> Setup {
 
     let event_loop = EventLoop::new();
     let mut builder = winit::window::WindowBuilder::new();
-    builder = builder.with_title(title);
+    builder = builder
+        .with_title(title)
+        .with_inner_size(winit::dpi::PhysicalSize::new(1600, 1200));
     #[cfg(windows_OFF)] // TODO
     {
         use winit::platform::windows::WindowBuilderExtWindows;

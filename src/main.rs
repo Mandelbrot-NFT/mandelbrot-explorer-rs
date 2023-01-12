@@ -24,6 +24,9 @@ struct Mandelbrot {
     renderer: Renderer,
     sample_location: SampleLocation,
     // frame_num: usize,
+    clicking: bool,
+    mouse_x: i32,
+    mouse_y: i32,
 }
 
 impl framework::App for Mandelbrot {
@@ -52,6 +55,9 @@ impl framework::App for Mandelbrot {
             computer,
             renderer,
             sample_location: SampleLocation::new(config.width as f32, config.height as f32),
+            clicking: false,
+            mouse_x: 0,
+            mouse_y: 0,
         }
     }
 
@@ -109,6 +115,22 @@ impl framework::App for Mandelbrot {
                     }
                 }
                 winit::event::ElementState::Released => {},
+            },
+            winit::event::WindowEvent::MouseInput { button: winit::event::MouseButton::Left, state: button_state, .. } => {
+                match button_state {
+                    winit::event::ElementState::Pressed  => { self.clicking = true  },
+                    winit::event::ElementState::Released => { self.clicking = false }
+                }
+            },
+            winit::event::WindowEvent::CursorMoved { position, .. } => {
+                let (x, y): (i32, i32) = position.into();
+                if self.clicking {
+                    let delta_x = x - self.mouse_x;
+                    let delta_y = y - self.mouse_y;
+                    self.sample_location.move_(delta_x as f32, delta_y as f32);
+                }
+                self.mouse_x = x as i32;
+                self.mouse_y = y as i32;
             },
             _ => {return false}
         }
